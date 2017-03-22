@@ -19,10 +19,9 @@ static void get_figure(t_player *player, char *data)
 
     i = 0;
     get_next_line(0, &data);
-    player->figure_h = ft_atoi(&data[6]);
-    player->figure_l = ft_atoi(&data[6 + num_len(player->figure_h)]);
+    player->figure_h = atoi(&data[6]);
+    player->figure_l = atoi(&data[6 + num_len(player->figure_h)]);
     player->figure = (char**)malloc(sizeof(char*) * player->figure_h);
-    free(data);
     while (i < player->figure_h)
     {
         get_next_line(0, &data);
@@ -43,9 +42,9 @@ static int if_fit(t_player *player, int h , int l)
     {
         while (j < player->figure_l)
         {
-            if (player->figure[i][j] == '*' && player->map[i + h][j + l] == player->p)
+            if (player->figure[i][j] == '*' && player->map[i + h][j + l] == 'O')
                 flag++;
-            if (player->figure[i][j] == '*' && player->map[i + h][j + l] == player->oponent_p)
+            if (player->figure[i][j] == '*' && player->map[i + h][j + l] == 'X')
                 return (0);
             j++;
         }
@@ -64,19 +63,16 @@ static int get_map(char *data, t_player *player)
     i = 0;
     j = 0;
     get_next_line(0, &data);
-    player->map_h = ft_atoi(&data[8]);
-    player->map_l = ft_atoi(&data[8 + num_len(player->map_h)]);
+    player->map_h = atoi(&data[8]);
+    player->map_l = atoi(&data[8 + num_len(player->map_h)]);
     player->map = (char**)malloc(sizeof(char*) * player->map_h);
-    free(data);
     get_next_line(0, &data);
-    free(data);
     while(data[j] == ' ')
         j++;
     while (i < player->map_h)
     {
         get_next_line(0, &data);
         player->map[i] = ft_strsub(data, j, player->map_l);
-        free(data);
         i++;
     }
     return 1;
@@ -87,7 +83,6 @@ static int find_place(t_player *player)
     int i;
     int j;
     t_list *variants;
-    t_list *temp;
 
     variants = NULL;
     i = 0;
@@ -109,11 +104,9 @@ static int find_place(t_player *player)
     }
     if (variants != NULL)
     {
-        temp = variants;
         variants = choose_algo(variants, player);
         player->turn_res[0] = ((int *) variants->content)[0];
         player->turn_res[1] = ((int *) variants->content)[1];
-        clear_list(temp);
     }else
     {
         ft_printf("cant solve");
@@ -121,40 +114,38 @@ static int find_place(t_player *player)
     return (1);
 }
 
-static void read_player(char *data, t_player *player)
+static int read_player(char *data, t_player *player)
 {
 
-    get_next_line(0, &data);
-    if (player->p == 0) {
-        if (!ft_strncmp(data, "$$$ exec p1", 11)) {
-            player->p = 'O';
-            player->oponent_p = 'X';
+        get_next_line(0, &data);
+        if (player->p == 0)
+        {
+            if (!ft_strncmp(data, "$$$ exec p1", 11))
+                player->p = 'O';
+            else
+                player->p = 'X';
+            return 1;
         }
-            else {
-            player->p = 'X';
-            player->oponent_p = 'O';
-        }
-    }
-    free(data);
+    return 0;
 }
+
+
 
 int main(int argc, char **argv)
 {
     argc = 0;
     argv = 0;
-
-
     char *data;
+    char *tmp;
 
     data = 0;
+    t_player *player;
 
-   t_player *player;
-
+    tmp = ft_strnew(1);
     player = malloc(sizeof(t_player));
     player->p = 0;
     player->map_h = 0;
     player->map = 0;
-
 
     while(1)
     {
@@ -166,29 +157,38 @@ int main(int argc, char **argv)
         find_place(player);
         ft_printf("%d ", player->turn_res[0]);
         ft_printf("%d\n", player->turn_res[1]);
-        clear_struct(player);
     }
 }
 
 //$$$ exec p1 : [/nfs/2016/o/omotyliu/git/filler/filler]
-//Plateau 15 17:
-//01234567890123456
-//000 .................
-//001 .................
-//002 .................
-//003 .................
-//004 .................
-//005 .................
-//006 .................
-//007 .................
-//008 ..O..............
-//009 .................
-//010 .................
-//011 .................
-//012 ..............X..
-//013 .................
-//014 .................
-//Piece 2 2:
-//*.
-//**
-
+//Plateau 24 40:
+//0123456789012345678901234567890123456789
+//000 OOOOOOOOOOOOOOOOOOOO....................
+//001 OOOOOOOOOOOOOOOOOOOOOOOO................
+//002 OOOOOOOOOOOOOOOOOOOOOOOOOOO.............
+//003 OOOOOOOOOOOOOOOOOOOOOO..OO..............
+//004 OOOOOO...O..OOOO....OOOOOOO.............
+//005 O.OO.................O.OOOO.............
+//006 .....................O..OOOO............
+//007 .....................OOOO.O.............
+//008 ........................................
+//009 ........................................
+//010 ......................X.................
+//011 .....................XXXXXX.XXX.........
+//012 ...................XXXXXXXX.XXX.........
+//013 ..................XXXXXXXXXXXXX.........
+//014 ..................XXXXXXXXXXXX..........
+//015 ..................XXXXXXXXXXXX..........
+//016 ..................XXXXXXXXXXXX..........
+//017 ..................XXXXXXXXXXXX..........
+//018 ..................XXXXXXXX.XXXX.........
+//019 ...................xXXXXX..XXXXXXX......
+//020 ..................xxXXXXX...XXX.........
+//021 ...................xXXX.XX...XX.........
+//022 ........................................
+//023 ........................................
+//Piece 4 6:
+//......
+//......
+//*.....
+//*.....
