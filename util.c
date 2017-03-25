@@ -12,94 +12,42 @@
 
 #include "filler.h"
 
-int num_len(int num)
+int		num_len(int num)
 {
-    int res;
+	int res;
 
-    res = 0;
-    while (num)
-    {
-        num = num / 10;
-        res++;
-    }
-    return (res);
+	res = 0;
+	while (num)
+	{
+		num = num / 10;
+		res++;
+	}
+	return (res);
 }
 
-void find_start_point(t_player *player)
+void	clear_struct(t_player *player)
 {
+	int	i;
 
-    int i;
-    int j;
-    static int status;
-
-    if (status == 1)
-        return ;
-    i = 0;
-    j = 0;
-    while(i < player->map_h)
-    {
-        while (j < player->map_l)
-        {
-            if (player->map[i][j] == player->p)
-            {
-                player->star_to = (player->map_l - j > player->map_l / 2) ? 1 : -1;
-                status = 1;
-            }
-            j++;
-        }
-        j = 0;
-        i++;
-    }
+	i = 0;
+	while (i < player->map_h)
+		free(player->map[i++]);
+	i = 0;
+	while (i < player->figure_h)
+		free(player->figure[i++]);
+	free(player->map);
+	free(player->figure);
 }
 
-int if_closer(t_player *player, int h, int l)
+void	clear_list(t_list *list)
 {
-    int i;
-    int j;
-    int res;
+	t_list *temp;
 
-    res = 0;
-    i = 0;
-    j = 0;
-    while (i < player->figure_h)
-    {
-        while (j < player->figure_l)
-        {
-            if (player->figure[i][j] == '*' && ft_isdigit(player->map[i + h][j + l]))
-                res += player->map[i + h][j + l] - 48;
-            else
-                res += 10;
-            j++;
-        }
-        j = 0;
-        i++;
-    }
-    return (res);
+	while (list)
+	{
+		temp = list;
+		list = list->next;
+		free(temp->content);
+		free(temp);
+	}
 }
-
-int have_contact(t_player *player)
-{
-    int i;
-    int j;
-
-    i = 1;
-    j = 1;
-    while(i < player->map_h - 1)
-    {
-        while (j < player->map_l - 1)
-        {
-            if (player->map[i][j] == player->p)
-            {
-                if (ft_isdigit(player->map[i + 1][j]) || ft_isdigit(player->map[i - 1][j])
-                    || ft_isdigit(player->map[i][j + 1]
-                                  || ft_isdigit(player->map[i][j - 1])))
-                    return 1;
-            }
-            j++;
-        }
-        j = 0;
-        i++;
-    }
-    return 0;
-}
-
